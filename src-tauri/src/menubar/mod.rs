@@ -29,7 +29,8 @@ use crate::{AppState, error::CmdError, notices, supervisor::CoreState};
 /// 把这一条落库、算出费用的时间
 const SETTLE: std::time::Duration = std::time::Duration::from_secs(3);
 
-/// 菜单开着时隔多久走一次秒数和倒计时。**只在开着时走**，关上就停
+/// 菜单开着时隔多久走一次秒数和倒计时；菜单栏上挂着数字、有请求在跑时，也按它刷新此刻的
+/// 速度。**两样都不是时就停**
 const TICK: std::time::Duration = std::time::Duration::from_secs(1);
 
 /// 问 core 的一句最多等多久。**core 接了连接却不回话**（卡在存储层上、远程那台半死不活）
@@ -138,7 +139,11 @@ async fn run(app: tauri::AppHandle) {
     let Some(st) = app.try_state::<AppState>() else {
         return;
     };
-    let (wake, now) = (st.menubar.clone(), st.menubar_now.clone());
+    let (wake, now, started) = (
+        st.menubar.clone(),
+        st.menubar_now.clone(),
+        st.menubar_started.clone(),
+    );
     let mut core_rx = st.supervisor.watch();
     let mut credits = Credits::default();
     let mut tick = tokio::time::interval(TICK);
@@ -165,21 +170,17 @@ async fn run(app: tauri::AppHandle) {
         let reset = next_reset_in(&snap, day_end).map(|d| tokio::time::Instant::now() + d);
         let mut due = None;
         // 菜单开着时每秒走一次：秒数、倒计时现算，在跑的和速率问 core 一次（很轻），
-        // 汇总和额度不问。**菜单栏上挂着速度时菜单关着也走**：速度只算最近一分钟跑完的
-        // 请求，不再问的话，最后一个请求落地之后菜单栏上的速度就一直挂着
+        // 汇总和额度不问。**菜单栏上挂着数字、有请求在跑时菜单关着也走**：速度是此刻的，
+        // 请求跑着的每一秒都在变。都跑完了就停（最后那一问拿到的是破折号）；下一个请求开始
+        // 时 `started` 叫醒这里，马上问一次就又走起来
         loop {
-            let rate_shown = snap.rate.is_some() && drawn_style() != Style::Icon;
-            let ticking = || open() || rate_shown;
-            if wait(
-                &wake,
-                &now,
-                &mut core_rx,
-                reset,
-                &mut tick,
-                ticking,
-                &mut due,
-            )
-            .await
+            let ticking = || ticks(open(), &snap, drawn_style());
+            let wakes = Wakes {
+                wake: &wake,
+                now: &now,
+                started: &started,
+            };
+            if wait(&wakes, &mut core_rx, reset, &mut tick, ticking, &mut due).await
                 == Woke::Collect
             {
                 break;
@@ -190,22 +191,36 @@ async fn run(app: tauri::AppHandle) {
     }
 }
 
+/// 该不该每秒走一次：菜单开着；或者有请求在跑、菜单栏上挂着速度那一行（只有标识的、
+/// 不显示的没有）。**什么都没在跑、菜单关着时不走**：菜单栏上的破折号不会自己变
+fn ticks(open: bool, snap: &Snapshot, style: Style) -> bool {
+    open || (!snap.live.is_empty() && matches!(style, Style::Full | Style::Numbers))
+}
+
+/// 叫醒菜单栏的几种理由（见 [`wait`]）：有事件（攒一攒再收）、要立刻收、有请求开始了
+struct Wakes<'a> {
+    wake: &'a tokio::sync::Notify,
+    now: &'a tokio::sync::Notify,
+    started: &'a tokio::sync::Notify,
+}
+
 /// [`wait`] 为什么回来了
 #[derive(Debug, PartialEq, Eq)]
 enum Woke {
     /// 整个重收
     Collect,
-    /// 菜单开着或者菜单栏上挂着速度，走一秒
+    /// 菜单开着，或者有请求在跑、菜单栏上挂着速度：走一秒
     Tick,
 }
 
 /// 等到该重收的时候。有事件就攒 [`SETTLE`] 再收；`now`（菜单打开、换了样式或语言、钟跳了）、
 /// core 换了状态、到了 `reset`（额度重置、本地零点，见 [`next_reset_in`]），立刻收。
-/// `ticking`（菜单开着，或者菜单栏上挂着速度）时每秒回来一次 [`Woke::Tick`]，**攒着的
-/// 那几秒也走** —— 不然请求一个接一个落地时，开着的菜单里秒数会一卡几秒。`due` 是攒到什么时候，由调用方带着跨过这几次 tick
+/// `ticking`（菜单开着，或者有请求在跑、菜单栏上挂着速度）时每秒回来一次 [`Woke::Tick`]，
+/// **攒着的那几秒也走** —— 不然请求一个接一个落地时，开着的菜单里秒数会一卡几秒。`due` 是
+/// 攒到什么时候，由调用方带着跨过这几次 tick。`started`（有请求开始了）马上回来一次
+/// [`Woke::Tick`]：问到在跑的，`ticking` 就成立了，速度从第一秒起每秒走
 async fn wait(
-    wake: &tokio::sync::Notify,
-    now: &tokio::sync::Notify,
+    w: &Wakes<'_>,
     core_rx: &mut tokio::sync::watch::Receiver<CoreState>,
     reset: Option<tokio::time::Instant>,
     tick: &mut tokio::time::Interval,
@@ -215,11 +230,12 @@ async fn wait(
     loop {
         let settle = *due;
         tokio::select! {
-            _ = wake.notified(), if settle.is_none() => {
+            _ = w.wake.notified(), if settle.is_none() => {
                 *due = Some(tokio::time::Instant::now() + SETTLE);
             }
             _ = sleep_until(settle), if settle.is_some() => return Woke::Collect,
-            _ = now.notified() => return Woke::Collect,
+            _ = w.now.notified() => return Woke::Collect,
+            _ = w.started.notified() => return Woke::Tick,
             _ = core_rx.changed() => return Woke::Collect,
             _ = sleep_until(reset), if reset.is_some() => return Woke::Collect,
             _ = tick.tick(), if ticking() => return Woke::Tick,
@@ -242,7 +258,7 @@ fn present(snap: &Snapshot) {
 }
 
 /// 只更新随时间走的那几样：现在几点、谁在跑、速率。**问 core 要**（`/live`）：
-/// 在跑的和最近的生成速率是 core 的事件总线数的，这边不再自己听事件去数。
+/// 在跑的和它们此刻的生成速度是 core 数的，这边不再自己听事件去数。
 /// 问不到（或者 [`ASK`] 之内没回话）时留着上一次的
 async fn refresh_live(state: &AppState, snap: &mut Snapshot) {
     snap.now_ms = notices::now_ms();
@@ -278,6 +294,7 @@ fn apply_live(snap: &mut Snapshot, live: tw_api::LiveView) {
             key: r.client,
             model: r.model,
             started_ms: now.saturating_sub(r.elapsed_ms),
+            rate: r.tokens_per_sec,
         })
         .collect();
     snap.rate = live.tokens_per_sec;
@@ -834,9 +851,15 @@ mod tests {
         tick: &mut tokio::time::Interval,
         open: bool,
     ) -> usize {
+        let started = tokio::sync::Notify::new();
         let mut due = None;
         let mut ticks = 0;
-        while wait(wake, now, rx, reset, tick, || open, &mut due).await == Woke::Tick {
+        let w = Wakes {
+            wake,
+            now,
+            started: &started,
+        };
+        while wait(&w, rx, reset, tick, || open, &mut due).await == Woke::Tick {
             ticks += 1;
         }
         ticks
@@ -866,6 +889,30 @@ mod tests {
         assert_eq!(ticks, 0);
     }
 
+    /// **请求一开始就问一次在跑的**，菜单关着、什么都没在走也是：不等攒够三秒
+    #[tokio::test(start_paused = true)]
+    async fn a_started_request_asks_for_the_live_numbers_at_once() {
+        let (wake, now, tx, mut tick) = setup();
+        let mut rx = tx.subscribe();
+        let started = tokio::sync::Notify::new();
+        let start = tokio::time::Instant::now();
+        wake.notify_one();
+        started.notify_one();
+        let w = Wakes {
+            wake: &wake,
+            now: &now,
+            started: &started,
+        };
+        let mut due = None;
+        let woke = wait(&w, &mut rx, None, &mut tick, || false, &mut due).await;
+        assert_eq!(woke, Woke::Tick);
+        assert_eq!(start.elapsed(), std::time::Duration::ZERO);
+        // 攒着的那次重收照旧在三秒后
+        let woke = wait(&w, &mut rx, None, &mut tick, || false, &mut due).await;
+        assert_eq!(woke, Woke::Collect);
+        assert_eq!(start.elapsed(), SETTLE);
+    }
+
     #[tokio::test(start_paused = true)]
     async fn opening_the_menu_or_a_core_change_collects_at_once() {
         let (wake, now, tx, mut tick) = setup();
@@ -881,9 +928,29 @@ mod tests {
         assert_eq!(start.elapsed(), std::time::Duration::ZERO);
     }
 
-    /// core 给的在跑的请求照原样进菜单：谁、哪个模型、跑了多久，还有速率。**跑了多久
-    /// 以 core 算的为准**：它的时钟比这台机器快了一分钟（`at_ms` 在「将来」），菜单上
-    /// 照样是 12 秒
+    /// core 报的一个在跑的请求
+    fn running(id: u64, elapsed_ms: u64, tokens_per_sec: Option<u32>) -> tw_api::RunningView {
+        tw_api::RunningView {
+            id,
+            client: "default".into(),
+            client_hint: Some("codex".into()),
+            model: "gpt-5".into(),
+            provider: "openai".into(),
+            at_ms: 148_000,
+            elapsed_ms,
+            session: None,
+            route: "default".into(),
+            rule: "catch-all".into(),
+            group: Some("__all__".into()),
+            upstream: None,
+            tokens_per_sec,
+            output_tokens: tokens_per_sec.map(|_| 300),
+        }
+    }
+
+    /// core 给的在跑的请求照原样进菜单：谁、哪个模型、跑了多久、此刻多快，还有合计的速度。
+    /// **跑了多久以 core 算的为准**：它的时钟比这台机器快了一分钟（`at_ms` 在「将来」），
+    /// 菜单上照样是 12 秒
     #[test]
     fn the_live_numbers_come_from_core_as_they_are() {
         let mut snap = Snapshot {
@@ -893,38 +960,64 @@ mod tests {
         apply_live(
             &mut snap,
             tw_api::LiveView {
-                running: vec![tw_api::RunningView {
-                    id: 7,
-                    client: "default".into(),
-                    client_hint: Some("codex".into()),
-                    model: "gpt-5".into(),
-                    provider: "openai".into(),
-                    at_ms: 148_000,
-                    elapsed_ms: 12_000,
-                    session: None,
-                    route: "default".into(),
-                    rule: "catch-all".into(),
-                    group: Some("__all__".into()),
-                    upstream: None,
-                }],
+                running: vec![running(7, 12_000, Some(52)), running(8, 1_000, None)],
                 tokens_per_sec: Some(52),
             },
         );
         assert_eq!(
             snap.live,
-            vec![model::Live {
-                id: 7,
-                app: Some("codex".into()),
-                key: "default".into(),
-                model: "gpt-5".into(),
-                started_ms: 88_000,
-            }]
+            vec![
+                model::Live {
+                    id: 7,
+                    app: Some("codex".into()),
+                    key: "default".into(),
+                    model: "gpt-5".into(),
+                    started_ms: 88_000,
+                    rate: Some(52),
+                },
+                // 还在等第一个 token：没有速度
+                model::Live {
+                    id: 8,
+                    app: Some("codex".into()),
+                    key: "default".into(),
+                    model: "gpt-5".into(),
+                    started_ms: 99_000,
+                    rate: None,
+                },
+            ]
         );
         assert_eq!(snap.rate, Some(52));
-        // 下一次一个都不在跑、这一分钟也没有跑完的：都清掉，不留上一次的
+        // 在跑、却都还没开始生成：0，不是没有
+        apply_live(
+            &mut snap,
+            tw_api::LiveView {
+                running: vec![running(8, 2_000, None)],
+                tokens_per_sec: Some(0),
+            },
+        );
+        assert_eq!(snap.rate, Some(0));
+        // 下一次一个都不在跑：都清掉，不留上一次的
         apply_live(&mut snap, tw_api::LiveView::default());
         assert!(snap.live.is_empty());
         assert_eq!(snap.rate, None);
+    }
+
+    /// **有请求在跑、菜单栏上挂着速度时，菜单关着也每秒走**：速度是此刻的，每一秒都在变。
+    /// 都跑完了就停；只有标识、不显示的那两档菜单栏上没有速度，菜单关着不走
+    #[test]
+    fn the_bar_ticks_while_a_request_runs_and_stops_when_none_does() {
+        let mut snap = Snapshot::default();
+        for style in [Style::Full, Style::Numbers, Style::Icon, Style::Hidden] {
+            assert!(!ticks(false, &snap, style), "{style:?}");
+            assert!(ticks(true, &snap, style), "菜单开着总要走：{style:?}");
+        }
+        snap.live = vec![model::Live::default()];
+        // 还没开始生成（速度是 0、单个请求没有速度）也走：第一个 token 一到就要跟上
+        snap.rate = Some(0);
+        assert!(ticks(false, &snap, Style::Full));
+        assert!(ticks(false, &snap, Style::Numbers));
+        assert!(!ticks(false, &snap, Style::Icon));
+        assert!(!ticks(false, &snap, Style::Hidden));
     }
 
     /// core 接了连接却一直不回话：问一句最多等 [`ASK`]，等不到就当没问到。收数和每秒的
