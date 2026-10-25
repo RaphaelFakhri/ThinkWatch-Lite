@@ -29,7 +29,7 @@ Claude Code、Codex 等 AI 客户端的本地网关，支持 macOS、Windows 与
 ## 赞助商
 
 <details open>
-<summary>感谢以下赞助商支持 ThinkWatch Lite 的开发。</summary>
+<summary>感谢以下赞助商支持 ThinkWatch Lite 的开发。<a href="mailto:fylorn@outlook.com?subject=ThinkWatch%20Lite%20Sponsorship">成为赞助商</a></summary>
 <br>
 
 <a href="https://www.voyageage.com">
@@ -39,7 +39,7 @@ Claude Code、Codex 等 AI 客户端的本地网关，支持 macOS、Windows 与
   </picture>
 </a>
 
-<sub>赞助商是独立的第三方，ThinkWatch 不为其背书。<a href="https://thinkwat.ch/zh-CN/sponsors#disclaimer">免责声明</a> · <a href="mailto:fylorn@outlook.com?subject=ThinkWatch%20Lite%20Sponsorship">成为赞助商</a></sub>
+<sub>赞助商是独立的第三方，ThinkWatch 不为其背书。<a href="https://thinkwat.ch/zh-CN/sponsors#disclaimer">免责声明</a></sub>
 
 </details>
 
