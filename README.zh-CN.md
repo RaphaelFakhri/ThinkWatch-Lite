@@ -21,31 +21,27 @@
 
 Claude Code、Codex 等 AI 客户端的本地网关，支持 macOS、Windows 与 Linux。客户端只需接入一次，此后更换上游或模型无需改动客户端配置。每个请求的费用与去向都有记录；发出前可替换其中的 API 密钥，中转站在回答中塞入的危险工具调用也可以在客户端执行前拦下。
 
-**赞助商** · [成为赞助商](mailto:fylorn@outlook.com?subject=ThinkWatch%20Lite%20Sponsorship)
-
-<table>
-  <tr>
-    <td width="220" align="center">
-      <a href="https://www.voyageage.com">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="docs/sponsors/voyageage-dark.png">
-          <img src="docs/sponsors/voyageage-light.png" alt="VoyageAge" width="180">
-        </picture>
-      </a>
-    </td>
-    <td>
-      <b><a href="https://www.voyageage.com">VoyageAge</a> — 一个 API，更多模型，更低成本。</b><br>
-      VoyageAge 通过一个兼容 OpenAI 的 API 汇集领先的 AI 模型。它面向开发者、团队和 AI 初创公司，价格具有竞争力，按量计费，让你更轻松地把 AI 集成到项目中。注册即可获得免费试用额度，立即开始构建。
-    </td>
-  </tr>
-</table>
-
-<sub>赞助商是独立的第三方，ThinkWatch 不为其服务背书或担保。详见<a href="https://thinkwat.ch/zh-CN/sponsors#disclaimer">赞助商免责声明</a>。</sub>
-
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/zh/overview-dark.png">
   <img src="docs/screenshots/zh/overview-light.png" alt="最近 7 天的概览：需要处理的事项（失败的请求、被切断的工具调用、无法计价的请求）；token、费用、缓存命中、请求、首 token 与流量六张卡片，各带与前 7 天的对比和趋势图；下方是按模型的统计">
 </picture>
+
+## 赞助商
+
+<details open>
+<summary>感谢以下赞助商支持 ThinkWatch Lite 的开发。</summary>
+<br>
+
+<a href="https://www.voyageage.com">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/sponsors/voyageage-zh-dark.png">
+    <img src="docs/sponsors/voyageage-zh-light.png" alt="VoyageAge：一个 API，更多模型，更低成本。" width="100%">
+  </picture>
+</a>
+
+<sub>赞助商是独立的第三方，ThinkWatch 不为其背书。<a href="https://thinkwat.ch/zh-CN/sponsors#disclaimer">免责声明</a> · <a href="mailto:fylorn@outlook.com?subject=ThinkWatch%20Lite%20Sponsorship">成为赞助商</a></sub>
+
+</details>
 
 ## 要点
 
