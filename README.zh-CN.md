@@ -35,7 +35,7 @@ Claude Code、Codex 等 AI 客户端的本地网关，支持 macOS、Windows 与
 <a href="https://www.voyageage.com">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/sponsors/voyageage-zh-dark.png">
-    <img src="docs/sponsors/voyageage-zh-light.png" alt="VoyageAge：一个 API，更多模型，更低成本。" width="100%">
+    <img src="docs/sponsors/voyageage-zh-light.png" alt="VoyageAge — 一个 API，更多模型，更低成本。VoyageAge 通过一个兼容 OpenAI 的 API 汇集领先的 AI 模型。它面向开发者、团队和 AI 初创公司，价格具有竞争力，按量计费，让你更轻松地把 AI 集成到项目中。注册即可获得免费试用额度，立即开始构建。" width="100%">
   </picture>
 </a>
 
