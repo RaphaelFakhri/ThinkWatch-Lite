@@ -34,7 +34,7 @@ before the client runs them.
 ## Sponsors
 
 <details open>
-<summary>Thanks to the sponsors below for supporting the development of ThinkWatch Lite.</summary>
+<summary>Thanks to the sponsors below for supporting the development of ThinkWatch Lite. <a href="mailto:fylorn@outlook.com?subject=ThinkWatch%20Lite%20Sponsorship">Become a sponsor</a></summary>
 <br>
 
 <a href="https://www.voyageage.com">
@@ -44,7 +44,7 @@ before the client runs them.
   </picture>
 </a>
 
-<sub>Sponsors are independent third parties, not endorsed by ThinkWatch. <a href="https://thinkwat.ch/sponsors#disclaimer">Disclaimer</a> · <a href="mailto:fylorn@outlook.com?subject=ThinkWatch%20Lite%20Sponsorship">Become a sponsor</a></sub>
+<sub>Sponsors are independent third parties, not endorsed by ThinkWatch. <a href="https://thinkwat.ch/sponsors#disclaimer">Disclaimer</a></sub>
 
 </details>
 
