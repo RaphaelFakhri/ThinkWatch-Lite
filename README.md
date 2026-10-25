@@ -37,12 +37,12 @@ before the client runs them.
 <summary>Thanks to the sponsors below for supporting the development of ThinkWatch Lite. <a href="mailto:fylorn@outlook.com?subject=ThinkWatch%20Lite%20Sponsorship">Become a sponsor</a></summary>
 <br>
 
-<a href="https://www.voyageage.com">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/sponsors/voyageage-en-dark.png">
-    <img src="docs/sponsors/voyageage-en-light.png" alt="VoyageAge — One API. More models. Lower costs. VoyageAge brings leading AI models together through one OpenAI-compatible API. Built for developers, teams, and AI startups, it offers competitive pricing and pay-as-you-go billing, making it easier to integrate AI into your projects. Sign up for free trial credits and start building." width="100%">
-  </picture>
-</a>
+<table>
+  <tr>
+    <td width="30%"><a href="https://www.voyageage.com"><img src="docs/sponsors/voyageage-plate.png" alt="VoyageAge" width="100%"></a></td>
+    <td><b>One API. More models. Lower costs.</b><br>VoyageAge brings leading AI models together through one OpenAI-compatible API. Built for developers, teams, and AI startups, it offers competitive pricing and pay-as-you-go billing, making it easier to integrate AI into your projects. Sign up for free trial credits and start building. <a href="https://www.voyageage.com">voyageage.com ↗</a></td>
+  </tr>
+</table>
 
 <sub>Sponsors are independent third parties, not endorsed by ThinkWatch. <a href="https://thinkwat.ch/sponsors#disclaimer">Disclaimer</a></sub>
 
