@@ -26,7 +26,29 @@ cost and route; the API keys in it can be replaced before it leaves the
 machine, and dangerous tool calls a relay slips into an answer can be cut off
 before the client runs them.
 
-**Sponsors:** [Want to appear here?](mailto:fylorn@outlook.com?subject=ThinkWatch%20Lite%20Sponsorship)
+**Sponsors** · [Become a sponsor](mailto:fylorn@outlook.com?subject=ThinkWatch%20Lite%20Sponsorship)
+
+<table>
+  <tr>
+    <td width="220" align="center">
+      <a href="https://www.voyageage.com">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="docs/sponsors/voyageage-dark.png">
+          <img src="docs/sponsors/voyageage-light.png" alt="VoyageAge" width="180">
+        </picture>
+      </a>
+    </td>
+    <td>
+      <b><a href="https://www.voyageage.com">VoyageAge</a> — One API. More models. Lower costs.</b><br>
+      VoyageAge brings leading AI models together through one OpenAI-compatible
+      API. Built for developers, teams, and AI startups, it offers competitive
+      pricing and pay-as-you-go billing, making it easier to integrate AI into
+      your projects. Sign up for free trial credits and start building.
+    </td>
+  </tr>
+</table>
+
+<sub>Sponsors are independent third parties; ThinkWatch does not endorse or guarantee their services. See the <a href="https://thinkwat.ch/sponsors#disclaimer">sponsor disclaimer</a>.</sub>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/en/overview-dark.png">
