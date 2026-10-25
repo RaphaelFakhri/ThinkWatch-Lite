@@ -40,7 +40,7 @@ before the client runs them.
 <a href="https://www.voyageage.com">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/sponsors/voyageage-en-dark.png">
-    <img src="docs/sponsors/voyageage-en-light.png" alt="VoyageAge: One API. More models. Lower costs." width="100%">
+    <img src="docs/sponsors/voyageage-en-light.png" alt="VoyageAge — One API. More models. Lower costs. VoyageAge brings leading AI models together through one OpenAI-compatible API. Built for developers, teams, and AI startups, it offers competitive pricing and pay-as-you-go billing, making it easier to integrate AI into your projects. Sign up for free trial credits and start building." width="100%">
   </picture>
 </a>
 
