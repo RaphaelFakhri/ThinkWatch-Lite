@@ -32,12 +32,12 @@ Claude Code、Codex 等 AI 客户端的本地网关，支持 macOS、Windows 与
 <summary>感谢以下赞助商支持 ThinkWatch Lite 的开发。<a href="mailto:fylorn@outlook.com?subject=ThinkWatch%20Lite%20Sponsorship">成为赞助商</a></summary>
 <br>
 
-<a href="https://www.voyageage.com">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/sponsors/voyageage-zh-dark.png">
-    <img src="docs/sponsors/voyageage-zh-light.png" alt="VoyageAge — 一个 API，更多模型，更低成本。VoyageAge 通过一个兼容 OpenAI 的 API 汇集领先的 AI 模型。它面向开发者、团队和 AI 初创公司，价格具有竞争力，按量计费，让你更轻松地把 AI 集成到项目中。注册即可获得免费试用额度，立即开始构建。" width="100%">
-  </picture>
-</a>
+<table>
+  <tr>
+    <td width="30%"><a href="https://www.voyageage.com"><img src="docs/sponsors/voyageage-plate.png" alt="VoyageAge" width="100%"></a></td>
+    <td><b>一个 API，更多模型，更低成本。</b><br>VoyageAge 通过一个兼容 OpenAI 的 API 汇集领先的 AI 模型。它面向开发者、团队和 AI 初创公司，价格具有竞争力，按量计费，让你更轻松地把 AI 集成到项目中。注册即可获得免费试用额度，立即开始构建。 <a href="https://www.voyageage.com">voyageage.com ↗</a></td>
+  </tr>
+</table>
 
 <sub>赞助商是独立的第三方，ThinkWatch 不为其背书。<a href="https://thinkwat.ch/zh-CN/sponsors#disclaimer">免责声明</a></sub>
 
